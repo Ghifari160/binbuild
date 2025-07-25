@@ -11,6 +11,9 @@ THis project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added library for building binary distributed on NPM.
+  Source files are filtered by host platform and architecture.
+
 ### Changed
 
 ### Deprecated
