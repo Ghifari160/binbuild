@@ -1,0 +1,68 @@
+{
+  "name": "@ghifari160/binbuild",
+  "version": "0.1.0",
+  "description": "Build binary distributed on NPM",
+  "license": "MIT",
+  "author": "GHIFARI160",
+  "main": "mjs/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ghifari160/binbuild.git"
+  },
+  "keywords": [
+    "binbuild",
+    "binary"
+  ],
+  "bugs": {
+    "url": "https://github.com/ghifari160/binbuild"
+  },
+  "homepage": "https://github.com/ghifari160/bubinbuildild#readme",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./mjs/index.ts",
+        "default": "./mjs/index.mjs"
+      },
+      "require": {
+        "types": "./cjs/index.ts",
+        "default": "./cjs/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "cjs",
+    "LICENSE",
+    "mjs",
+    "package.json",
+    "README.md",
+    "src",
+    "tsconfig.json",
+    "tsconfig.cjs.json",
+    "tsconfig.mjs.json"
+  ],
+  "scripts": {
+    "build": "npm run clean && npm run build:mjs && npm run build:cjs",
+    "clean": "del-cli cjs lib mjs",
+    "build:mjs": "npm run build:mjs:ts && npm run build:mjs:transform",
+    "build:mjs:ts": "tsc -d -p tsconfig.mjs.json",
+    "build:mjs:transform": "mjscjs -p tsconfig.mjs.json",
+    "build:cjs": "npm run build:cjs:ts && npm run build:cjs:transform",
+    "build:cjs:ts": "tsc -d -p tsconfig.cjs.json",
+    "build:cjs:transform": "mjscjs -p tsconfig.cjs.json"
+  },
+  "devDependencies": {
+    "@ghifari160/changelog": "^0.3.1",
+    "@types/node": "^24.1.0",
+    "cross-env": "^7.0.3",
+    "del-cli": "^6.0.0",
+    "mjscjs": "^1.1.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "execa": "^9.6.0",
+    "extract-zip": "^2.0.1",
+    "tar": "^7.4.3"
+  }
+}

@@ -1,0 +1,38 @@
+name: Build and test NodeJS wrapper
+on:
+  push:
+    paths:
+      - ".github/workflows/ci-node.yaml"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "tsconfig*.json"
+    branches:
+      - "*"
+    tags-ignore:
+      - "*"
+  pull_request:
+    paths:
+      - ".github/workflows/ci-node.yaml"
+      - "package.json"
+      - "package-lock.json"
+      - "src/**"
+      - "tsconfig*.json"
+    branches:
+      - "*"
+    tags-ignore:
+      - "*"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build

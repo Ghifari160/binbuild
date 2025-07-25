@@ -1,0 +1,21 @@
+# OS ignores
+## Windows
+Thumbs.db
+
+## macOS
+.DS_Store
+
+## Linux
+lost+found
+
+# Stack ignores
+dist/
+node_modules/
+
+# IDE ignores
+.vscode
+
+# Project ignores
+cjs/
+lib/
+mjs/
