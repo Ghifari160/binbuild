@@ -31,7 +31,7 @@ export async function download(url: string, dest: string) {
 /**
  * Downloads an archive from `url` to `dest` and extract it.
  */
-export async function downloadAndExtract(url: string, dest: string) {
+export async function downloadAndExtract(url: string, dest: string, strip?: number) {
     await tempFileTask(async temp => {
         await download(url, temp);
 
@@ -51,6 +51,6 @@ export async function downloadAndExtract(url: string, dest: string) {
             throw new Error(`Unsupported format for ${url}: ${mime}`);
         }
 
-        await extract(temp, dest, format);
+        await extract(temp, dest, format, strip);
     });
 }
