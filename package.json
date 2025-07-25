@@ -16,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/ghifari160/binbuild"
   },
-  "homepage": "https://github.com/ghifari160/bubinbuildild#readme",
+  "homepage": "https://github.com/ghifari160/binbuild#readme",
   "exports": {
     ".": {
       "import": {
