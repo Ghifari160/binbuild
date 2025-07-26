@@ -11,7 +11,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- Added a way to modify the layout of the target directory after build completion.
+  If unspecified, the entire contents of the build directory will be moved to the target directory.
+
 ### Changed
+
+- Source archive are now extracted to a temporary build directory.
+  The build process is then executed inside that temporary build directory.
+  Files inside the build directory are moved to the target directory after build completion.
 
 ### Deprecated
 

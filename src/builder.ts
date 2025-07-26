@@ -1,11 +1,13 @@
 import type { Arch, Platform } from "./platform";
 
 import fs from "fs";
+import path from "path";
 
 import { execa } from "execa";
 
 import { downloadAndExtract } from "./download";
 import { osArchPair } from "./platform";
+import { tempDirectoryTask } from "./tempfile";
 
 /**
  * Binary source.
@@ -25,6 +27,21 @@ interface Source {
     url: string,
 };
 
+/**
+ * Describes remapping for a file.
+ */
+export interface Remap {
+    /**
+     * Source path relative to the build directory (i.e. the root of the archive).
+     */
+    src: string,
+    /**
+     * Destination path relative to the target directory.
+     * If unspecified, `src` will be used.
+     */
+    dest?: string,
+}
+
 export interface Command {
     cmd: string,
     args?: string[],
@@ -35,12 +52,14 @@ export default class BinBuilder {
     private destination: string;
     private downloaded: string[];
     private cmds: Command[];
+    private fileRemaps: Remap[];
 
     constructor() {
         this.sources = [];
         this.destination = "";
         this.downloaded = [];
         this.cmds = [];
+        this.fileRemaps = [];
     }
 
     /**
@@ -92,6 +111,25 @@ export default class BinBuilder {
     }
 
     /**
+     * Returns the configured remappings.
+     */
+    remaps(): Remap[];
+    /**
+     * Sets file remapping to be done after the build process.
+     * If there are no remap entry, the entire contents of the build directory will be moved to the
+     * target directory after build completion.
+     */
+    remaps(remaps: Remap[]): this;
+    remaps(remaps?: Remap[]) {
+        if(typeof remaps === "undefined") {
+            return this.fileRemaps;
+        }
+
+        this.fileRemaps = remaps;
+        return this;
+    }
+
+    /**
      * Returns the build commands.
      */
     commands(): Command[];
@@ -114,32 +152,55 @@ export default class BinBuilder {
     async build() {
         await this.ensureExist();
 
-        for(const cmd of this.commands()) {
-            const res = await execa(cmd.cmd, cmd.args, { stdout: "inherit", stderr: "inherit", cwd: this.dest() });
-            if(res.exitCode != 0) {
-                throw new Error(`Build error: ${cmd.cmd} returns ${res.exitCode}`);
+        tempDirectoryTask(async buildDir => {
+            await this.download(buildDir);
+
+            for(const cmd of this.commands()) {
+                const res = await execa(cmd.cmd, cmd.args, {
+                    stdout: "inherit",
+                    stderr: "inherit",
+                    cwd: buildDir,
+                });
+                if(res.exitCode != 0) {
+                    throw new Error(`Build error: ${cmd.cmd} returns ${res.exitCode}`);
+                }
             }
-        }
+
+            if(this.remaps().length > 0) {
+                for(const remap of this.remaps()) {
+                    const src = path.join(buildDir, remap.src);
+                    const dst = path.join(this.dest(), remap.dest || remap.src);
+                    const dstDir = path.dirname(dst);
+
+                    const dstDirExists = await exists(dstDir);
+                    if(!dstDirExists) {
+                        await fs.promises.mkdir(dstDir, { recursive: true });
+                    }
+
+                    await fs.promises.rename(src, dst);
+                }
+            } else {
+                await fs.promises.rename(buildDir, this.dest());
+            }
+        });
     }
 
     /**
-     * Ensures binary is downloaded.
-     * If not downloaded, the appropriate sources for this host platform and architecture will be
-     * downloaded.
+     * Ensures target directory exist.
+     * If not, it will be created.
      */
     async ensureExist() {
-        if(fs.existsSync(this.dest())) {
+        if(await exists(this.dest())) {
             return;
         }
 
         this.createDir(this.dest());
-        await this.download();
     }
 
     /**
      * Downloads the sources for the current host platform and architecture.
      */
-    private async download() {
+    private async download(dest: string) {
         const srcs = this.getSrcs();
 
         if(srcs.length < 1) {
@@ -147,7 +208,7 @@ export default class BinBuilder {
         }
 
         await Promise.all(srcs.map(async src => {
-            await downloadAndExtract(src.url, this.dest(), 1);
+            await downloadAndExtract(src.url, dest, 1);
             this.downloaded.push(src.url);
         }));
     }
@@ -179,5 +240,22 @@ export default class BinBuilder {
      */
     private createDir(path: fs.PathLike) {
         return fs.mkdirSync(path, { recursive: true });
+    }
+}
+
+/**
+ * Returns a Promise that resolves to the existence status of `filepath`.
+ * @returns Promise that resolves `true` if `filepath` exists, and `false` otherwise.
+ * @private
+ */
+async function exists(filepath: fs.PathLike) {
+    try {
+        await fs.promises.access(filepath);
+        return true;
+    } catch(err: unknown) {
+        if(err instanceof Error && "code" in err && err.code === "ENOENT") {
+            return false;
+        }
+        throw err;
     }
 }
