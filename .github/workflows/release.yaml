@@ -71,10 +71,6 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - name: Install dependencies
         run: npm ci
-      - name: Build wrapper and scripts
-        run: npm run build
-      - name: Prepare workspace
-        run: npm run clean
       - name: Publish wrapper
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
