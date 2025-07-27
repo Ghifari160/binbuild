@@ -7,8 +7,29 @@ import { type ArchiveFormat, extract } from "./unarchive";
 
 /**
  * Downloads a file `url` to `dest`.
+ * If `url` is a local path (or a `file://` URL), the file will instead be copied to `dest`.
  */
 export async function download(url: string, dest: string) {
+    if(isLocalPath(url)) {
+        return copyLocalFile(trimLocalURL(url), dest);
+    } else {
+        return downloadFromURL(url, dest);
+    }
+}
+
+/**
+ * Copies local file from `src` to `dest`.
+ * @param src Local path or `file://` URL to the source file.
+ * @param dest Path to destination file.
+ */
+async function copyLocalFile(src: string, dest: string) {
+    return fs.promises.copyFile(src, dest);
+}
+
+/**
+ * Downloads a file from `url` to `dest`.
+ */
+async function downloadFromURL(url: string, dest: string) {
     const resp = await fetch(url);
     const writeStream = fs.createWriteStream(dest);
 
@@ -53,4 +74,44 @@ export async function downloadAndExtract(url: string, dest: string, strip?: numb
 
         await extract(temp, dest, format, strip);
     });
+}
+
+/**
+ * Returns true if `pathLike` is a URL.
+ */
+function isURL(pathLike: string) {
+    try {
+        new URL(pathLike);
+        return true;
+    } catch(err) {
+        return false;
+    }
+}
+
+/**
+ * Returns true if `pathLike` is not URL or it is a `file://` URL.
+ */
+function isLocalPath(pathLike: string) {
+    if(isURL(pathLike)) {
+        try {
+            const url = new URL(pathLike);
+            if(url.protocol !== "file:") {
+                return false;
+            }
+        } catch(err) {}
+    }
+
+    return true;
+}
+
+/**
+ * Trims the `file://` protocol scheme from `pathLike`.
+ * If `pathLike` is not a URL (i.e. it is a local absolute or relative path), it is returned as is.
+ */
+function trimLocalURL(pathLike: string) {
+    try {
+        const url = new URL(pathLike);
+        return url.pathname;
+    } catch(err) {}
+    return pathLike;
 }

@@ -13,6 +13,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 - Added a way to modify the layout of the target directory after build completion.
   If unspecified, the entire contents of the build directory will be moved to the target directory.
+- Added support for local source archives.
+  Local sources can be specified as either paths (relative or absolute) or `file://` URLs.
 
 ### Changed
 
