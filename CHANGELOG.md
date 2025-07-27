@@ -28,6 +28,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixed
 
+- Fixed an issue where `.build()` Promise is firing prematurely.
+
 ### Security
 
 ## [0.1.1] - 2025-07-25

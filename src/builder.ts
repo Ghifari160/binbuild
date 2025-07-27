@@ -152,7 +152,7 @@ export default class BinBuilder {
     async build() {
         await this.ensureExist();
 
-        tempDirectoryTask(async buildDir => {
+        return tempDirectoryTask(async buildDir => {
             await this.download(buildDir);
 
             for(const cmd of this.commands()) {
