@@ -7,7 +7,7 @@ All notable changes in BinBuild will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [UNRELEASED]
+## [0.2.0] - 2025-07-27
 
 ### Added
 
@@ -24,15 +24,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   The build process is then executed inside that temporary build directory.
   Files inside the build directory are moved to the target directory after build completion.
 
-### Deprecated
-
-### Removed
-
 ### Fixed
 
 - Fixed an issue where `.build()` Promise is firing prematurely.
-
-### Security
 
 ## [0.1.1] - 2025-07-25
 
