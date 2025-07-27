@@ -148,8 +148,9 @@ export default class BinBuilder {
 
     /**
      * Performs build.
+     * @param silent If `true`, suppresses build commands output.
      */
-    async build() {
+    async build(silent?: boolean) {
         await this.ensureExist();
 
         return tempDirectoryTask(async buildDir => {
@@ -157,8 +158,8 @@ export default class BinBuilder {
 
             for(const cmd of this.commands()) {
                 const res = await execa(cmd.cmd, cmd.args, {
-                    stdout: "inherit",
-                    stderr: "inherit",
+                    stdout: silent ? "ignore" : "inherit",
+                    stderr: silent ? "ignore" : "inherit",
                     cwd: buildDir,
                 });
                 if(res.exitCode != 0) {

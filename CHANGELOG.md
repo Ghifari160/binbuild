@@ -15,6 +15,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   If unspecified, the entire contents of the build directory will be moved to the target directory.
 - Added support for local source archives.
   Local sources can be specified as either paths (relative or absolute) or `file://` URLs.
+- Added silent build mode.
+  Passing `true` to `.build()` suppresses build command outputs.
 
 ### Changed
 
